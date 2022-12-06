@@ -1,12 +1,12 @@
 import wixData from "wix-data"
-import { local } from "wix-storage"
+import { session } from "wix-storage"
 
 let debounce
 
 $w.onReady(() => {
   const filterCategories = filterData($w("#dynamicDataset"), "category")
 
-  const cachedFilter = local.getItem("category")
+  const cachedFilter = session.getItem("category")
 
   $w("#dynamicDataset").onReady(() => {
     cachedFilter && filterCategories(cachedFilter)
@@ -19,12 +19,12 @@ $w.onReady(() => {
 export function button14_click(event) {
   $w("#input10").value = undefined
   $w("#dropdown1").value = undefined
-  local.setItem("category", undefined)
+  session.setItem("category", undefined)
   $w("#dynamicDataset").setFilter(wixData.filter())
 }
 
 export const filterData = (dataset, field) => (value) => {
-  local.setItem(field, value)
+  session.setItem(field, value)
   dataset.setFilter(wixData.filter().contains(field, value))
 }
 
