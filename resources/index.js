@@ -1,28 +1,39 @@
 import wixData from "wix-data"
-$w.onReady(function () {
-  $w("#input10").onKeyPress(function () {
-    wixData
-      .query("ResourcesList")
-      .contains("companyName", $w("#input10").value)
-      .find()
-      .then((res) => {
-        $w("#listRepeater").data = res.items
-      })
-  })
+import { local } from "wix-storage"
 
-  $w("#dropdown1").onChange(function () {
-    wixData
-      .query("ResourcesList")
-      .contains("category", $w("#dropdown1").value)
-      .find()
-      .then((res) => {
-        $w("#listRepeater").data = res.items
-      })
+let debounce
+
+$w.onReady(() => {
+  const filterCategories = filterData($w("#dynamicDataset"), "category")
+
+  const cachedFilter = local.getItem("category")
+
+  $w("#dynamicDataset").onReady(() => {
+    cachedFilter && filterCategories(cachedFilter)
+    $w("#dropdown1").value = cachedFilter || undefined
+    $w("#input10").onInput(inputFilterDebounce)
+    $w("#dropdown1").onChange(({ target }) => filterCategories(target.value))
   })
 })
 
 export function button14_click(event) {
   $w("#input10").value = undefined
   $w("#dropdown1").value = undefined
+  local.setItem("category", undefined)
   $w("#dynamicDataset").setFilter(wixData.filter())
+}
+
+export const filterData = (dataset, field) => (value) => {
+  local.setItem(field, value)
+  dataset.setFilter(wixData.filter().contains(field, value))
+}
+
+export const inputFilterDebounce = ({ target }) => {
+  const filterResources = filterData($w("#dynamicDataset"), "ResourcesList")
+  if (debounce) {
+    clearTimeout(debounce)
+  }
+  debounce = setTimeout(() => {
+    filterResources(target.value)
+  }, 500)
 }
