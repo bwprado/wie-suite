@@ -1,6 +1,7 @@
 import wixData from "wix-data"
 import { session } from "wix-storage"
 
+/** @typedef {any} - debounce placeholder */
 let debounce
 
 $w.onReady(() => {
@@ -23,11 +24,26 @@ export function button14_click(event) {
   $w("#dynamicDataset").setFilter(wixData.filter())
 }
 
+/**
+ * This function is used to filter a dataset by a field
+ *
+ * @author Threed Software
+ * @param {$w.dataset} dataset - Dataset to filter
+ * @param {string} field - Field to filter by
+ * @returns {function} - Function to be used as a callback that receives the value to filter by
+ */
 export const filterData = (dataset, field) => (value) => {
   session.setItem(field, value)
   dataset.setFilter(wixData.filter().contains(field, value))
 }
 
+/**
+ * This function is used to debounce the input filter function
+ *
+ * @author Threed Software
+ * @param {$w.Event} event - Event object
+ * @property {object} event.target.value - Value of the input
+ */
 export const inputFilterDebounce = ({ target }) => {
   const filterResources = filterData($w("#dynamicDataset"), "ResourcesList")
   if (debounce) {
