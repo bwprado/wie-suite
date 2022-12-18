@@ -1,9 +1,19 @@
 import wixData from "wix-data"
-import { timeline } from "wix-animations"
 
 let debounce
 
-const animation = timeline()
+/**
+ * This function returns the options for the overlay animation
+ *
+ * @author Threed Software
+ * @param {number} duration - The duration of the animation in milliseconds
+ * @param {number} delay - The delay of the animation in milliseconds
+ * @returns {{duration: number, delay: number}}
+ */
+const showOverlayOptions = (duration = 200, delay = 0) => ({
+  duration,
+  delay
+})
 
 /**
  * This method runs when the page loads
@@ -13,34 +23,18 @@ const animation = timeline()
 $w.onReady(() => {
   $w("#datasetVideos").onReady(() => {
     updateTotalCount($w("#datasetVideos"))
-    $w("#rptVideos").onItemReady(repeaterData)
     $w("#boxLoadingMore").onViewportEnter(loadMore)
   })
   $w("#iptSearch").onInput(handleInput)
 
   $w("#btnClear").onClick(clearInput)
-  $w("#btnShowDescription").onClick(handleShowDescription)
   $w("#ddCategoryFilter").onChange(() => filterVideos(""))
+
+  /** Handle video player events */
+  $w("#videoPlayer").onPlay(showOverlay).onEnded(showOverlay)
+
+  $w("#boxOverlay").onClick(togglePlay)
 })
-
-/**
- * This function shows or hides the description
- *
- * @param {$w.MouseEvent} event - The mouse event object
- */
-function handleShowDescription(event) {
-  let $item = $w.at(event.context)
-  $item("#boxDescription").collapsed
-    ? $item("#boxDescription").expand()
-    : $item("#boxDescription").collapse()
-
-  animation.add($item("#btnShowDescription"), {
-    rotate: $item("#boxDescription").collapsed ? 0 : 180,
-    duration: 200
-  })
-
-  animation.play()
-}
 
 /**
  * This function handles the input event of the search input
@@ -128,22 +122,6 @@ function updateTotalCount(dataset) {
 }
 
 /**
- * @typedef {Object} RepeaterData
- * @property {string} title
- * @property {string} description
- * @property {string} videoCast
- * @property {string} category
- * @property {string} url
- *
- * @param {$w.$w} $item
- * @param {RepeaterData} itemData - Object data of the item
- * @param {number} index - The index of the item
- */
-function repeaterData($item, itemData, index) {
-  $item("#txtTitle").text = itemData.title.toUpperCase()
-}
-
-/**
  * This function shows or hides the loading more indicator
  * @param {boolean} condition
  */
@@ -162,4 +140,30 @@ function loadMore() {
     !hasReachedEnd &&
     $w("#datasetVideos").loadMore().then()
   showLoadingMore(!hasReachedEnd)
+}
+
+/**
+ * This function shows or hides the overlay
+ *
+ * @author Threed Software
+ * @param {$w.MouseEvent} e - The event object
+ */
+async function showOverlay(e) {
+  let $item = $w.at(e.context)
+  $item("#boxOverlay")[e.target.isPlaying ? "hide" : "show"](
+    "fade",
+    showOverlayOptions()
+  )
+}
+
+/**
+ * This function toggles the play state of the video player
+ *
+ * @author Threed Software
+ * @param {$w.MouseEvent} e
+ */
+function togglePlay(e) {
+  let $item = $w.at(e.context)
+  $item("#videoPlayer").togglePlay()
+  $item("#boxOverlay").hide("fade", showOverlayOptions())
 }
