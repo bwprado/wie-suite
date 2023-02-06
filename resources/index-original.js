@@ -25,7 +25,6 @@ $w.onReady(async () => {
   $w("#dynamicDataset").onReady(() => {
     cachedFilter && filterCategories(cachedFilter)
     $w("#dropdownCategories").value = cachedFilter || undefined
-    $w("#input10").onInput(inputFilterDebounce)
     $w("#dropdownCategories").onChange(({ target }) =>
       filterCategories(target.value)
     )
@@ -51,7 +50,6 @@ $w.onReady(async () => {
   $w("#viewResource").onClick((e) => {
     const scrollpos = e.pageY
     saveLastState("scrollpos", scrollpos)
-    e.context
     saveLastState("clickContext", e.context)
 
     console.log(scrollpos)
@@ -81,7 +79,6 @@ const getLastState = (key) => {
 }
 
 export function button14_click(event) {
-  $w("#input10").value = undefined
   $w("#dropdownCategories").value = undefined
   session.setItem("category", undefined)
   $w("#dynamicDataset").setFilter(wixData.filter())
