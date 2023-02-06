@@ -15,6 +15,8 @@ $w.onReady(() => {
     $w("#input10").onInput(inputFilterDebounce)
     $w("#dropdown1").onChange(({ target }) => filterCategories(target.value))
   })
+
+  $w("#dropdown1").options = addOptions($w("#dropdown1").options)
 })
 
 export function button14_click(event) {
@@ -52,4 +54,12 @@ export const inputFilterDebounce = ({ target }) => {
   debounce = setTimeout(() => {
     filterResources(target.value)
   }, 500)
+}
+
+const addOptions = (options) => {
+  const allCategories = {
+    label: "All Categories",
+    value: "all"
+  }
+  return [allCategories, ...options]
 }
